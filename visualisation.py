@@ -184,7 +184,7 @@ class Visualisation(object):
 			radius_max = 30
 			radius_min = 5
 			stats_width = 370
-		# for each station we're gonna display circle with dynamic color and size and some stats
+		# for each station we're gonna display circles with dynamic color and size and some stats
 		opposite_color_size = 100
 		x = 0
 		temp_actual = {}
@@ -386,7 +386,7 @@ class Visualisation(object):
 					if self.user_text == "date_ms":
 						self.increase_date_ms = float(self.user_text_str.replace(",", "."))
 					elif self.user_text == "date1":
-						if self.user_text_str.find(" ") != 0:
+						if self.user_text_str.find(" ") != -1:
 							tmp_text = self.user_text_str.split(" ")
 							tmp_text[0] = tmp_text[0].replace("/", "-")
 							tmp_text[1] = tmp_text[1].replace("/", ":")
@@ -400,7 +400,14 @@ class Visualisation(object):
 						except:
 							print("could not find", self.user_text_str)
 					elif self.user_text == "date2":
-						self.user_text_str = self.user_text_str.replace("/", "-")
+						if self.user_text_str.find(" ") != -1:
+							tmp_text = self.user_text_str.split(" ")
+							tmp_text[0] = tmp_text[0].replace("/", "-")
+							tmp_text[1] = tmp_text[1].replace("/", ":")
+							tmp_text[1] = tmp_text[1].replace("-", ":")
+							self.user_text_str = tmp_text[0] + " " + tmp_text[1]
+						else:
+							self.user_text_str = self.user_text_str.replace("/", "-")
 						try :
 							self.date_actual_index[1] = self.df_temp[self.df_mode].loc[self.df_temp[self.df_mode]["date_mesure"] == self.user_text_str].index[0]
 							self.surface["map_actual"][1] = self.load_map_surface(self.df_mode, self.date_actual_index[1])
