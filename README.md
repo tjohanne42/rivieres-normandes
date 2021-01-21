@@ -19,3 +19,9 @@ Rappelez vous que votre CEO est surchargé de travail, il n’aura pas plus de 1
 clean_csv.py fait des modifications sur le jeu de données. ces modifications sont nécessaires pour la suite
 
 visualisation.py ouvre une fenêtre de visualisation (pygame)
+
+# features envisageables
+
+focus sur une station en particulier, qui afficherait des stats par rapport aux autres stations
+
+mode avec une seule map + des graphiques
