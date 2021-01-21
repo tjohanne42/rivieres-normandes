@@ -1,6 +1,6 @@
 # rivieres-normandes
 
-Exercie pédagogique:
+Exercice pédagogique:
 
 data: https://www.data.gouv.fr/fr/datasets/suivi-thermique-des-riveres-en-normandie/
 
