@@ -378,7 +378,7 @@ class Visualisation(object):
 if __name__ == "__main__":
 
 	visu = Visualisation()
-	visu.fps = 120
+	visu.fps = 60
 	# count real time fps
 	timer = time.time()
 	count_fps = 0
