@@ -45,43 +45,33 @@ temp_hour.to_csv("csv/temp_hour.csv")
 
 # create new df with temp / day
 temp_hour = pd.read_csv("csv/temp_hour.csv")
-
 x = 0
-
 nb_hours = 0
 values = [0] * 17
-
 tab_mean = []
 tab_date = [temp_hour["date_mesure"][0].split(" ")[0]]
-
 while x < len(temp_hour):
     date = temp_hour["date_mesure"][x].split(" ")[0]
-    
     if date != tab_date[-1]:
         for value in values:
             tab_mean.append(value / nb_hours)
         tab_date.append(date)
         values = [0] * 17
         nb_hours = 0
-
     y = 0
     while y < 17:
         values[y] += temp_hour["Teau"][x + y]
         y += 1
-        
     x += 17
     nb_hours += 1
-        
 for value in values:
     tab_mean.append(value / nb_hours)
-    
 dates = []
 for date in tab_date:
     i = 0
     while i < 17:
         dates.append(date)
         i += 1
-
 dic = {
         "date_mesure" : dates,
         "Teau" : tab_mean,
@@ -98,41 +88,32 @@ temp_day.to_csv("csv/temp_day.csv")
 # create new df with temp / month
 temp_day = pd.read_csv("csv/temp_day.csv")
 x = 0
-
 nb_days = 0
 values = [0] * 17
-
 tab_mean = []
 tab_date = [temp_day["date_mesure"][0][0:7]]
-
 while x < len(temp_day):
     date = temp_day["date_mesure"][x][0:7]
-    
     if date != tab_date[-1]:
         for value in values:
             tab_mean.append(value / nb_days)
         tab_date.append(date)
         values = [0] * 17
         nb_days = 0
-
     y = 0
     while y < 17:
         values[y] += temp_day["Teau"][x + y]
         y += 1
-        
     x += 17
     nb_days += 1
-        
 for value in values:
     tab_mean.append(value / nb_days)
-    
 dates = []
 for date in tab_date:
     i = 0
     while i < 17:
         dates.append(date)
         i += 1
-
 dic = {
         "date_mesure" : dates,
         "Teau" : tab_mean,
@@ -190,3 +171,4 @@ for lib in tab_lib:
 
 # save the cleaned dataframe res
 res.to_csv("csv/reseau.csv")
+

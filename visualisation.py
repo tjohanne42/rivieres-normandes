@@ -35,16 +35,16 @@ class Visualisation(object):
 		icon_surface = pg.image.load('assets/icon.ico')
 		pg.display.set_icon(icon_surface)
 		pg.display.set_caption("Rivières Normandes Visualisation")
-		info = pg.display.Info()
-		screen_width, screen_height = info.current_w, info.current_h
 		# we're just adjusting size for two size of screen
-		if screen_width >= 1660 and screen_height >= 870:
-			self.window_width, self.window_height = 1660, 870
+		info = pg.display.Info()
+		if info.current_w >= 1660 and info.current_h >= 900:
+			# 1680+ screen
+			self.window_width, self.window_height = 1660, 900
 			self.display_mode = 0
 		else:
-			self.window_width, self.window_height= 1060, 700
+			# small screen :c
+			self.window_width, self.window_height= 1140, 700
 			self.display_mode = 1
-		# debugging
 		self.screen = pg.display.set_mode((self.window_width, self.window_height), HWSURFACE | DOUBLEBUF | RESIZABLE)
 		self.fonts = self.load_fonts("assets/Inconsolata-Bold.ttf", 1, 30)
 		self.clock = pg.time.Clock()
@@ -80,30 +80,30 @@ class Visualisation(object):
 		pg.image.save(self.map_surface, "assets/gray_map_1653x1167.png")
 		"""
 		# resize the map, to save time we're gonna do it with paint :3
-		# load the grayscale map (800 = width)
+		# load the grayscale map
 		self.map_surface_800 = pg.image.load("assets/gray_map_800.png")
 		self.map_surface_500 = pg.image.load("assets/gray_map_500.png")
 		# position of stations on the map, needed to check lambert 93 positions to place them
 		self.stations_pos = 	{
-								"Monne" : [(614, 245), (0, 0)],
-								"Barge" : [(620, 331), (0, 0)],
-								"Ving Bec" : [(394, 211), (0, 0)],
-								"Odon T2" : [(352, 193), (0, 0)],
-								"Odon T4" : [(402, 139), (0, 0)],
-								"Odon T5" : [(435, 123), (0, 0)],
-								"Orne T1" : [(412, 260), (0, 0)],
-								"Orne T3" : [(418, 175), (0, 0)],
-								"Orne T2" : [(398, 233), (0, 0)],
-								"Selune T4" : [(118, 408), (0, 0)],
-								"Selune T2" : [(132, 417), (0, 0)],
-								"Selune T5" : [(112, 406), (0, 0)],
-								"Selune T1" : [(172, 423), (0, 0)],
-								"Touques T1" : [(673, 336), (0, 0)],
-								"Touques T3" : [(665, 247), (0, 0)],
-								"Touques T4" : [(662, 188), (0, 0)],
-								"Touques T6" : [(631, 56), (0, 0)]
+								"Monne" : [(614, 245), (383, 153)],
+								"Barge" : [(620, 331), (387, 207)],
+								"Ving Bec" : [(394, 211), (246, 132)],
+								"Odon T2" : [(352, 193), (219, 120)],
+								"Odon T4" : [(402, 139), (251, 87)],
+								"Odon T5" : [(435, 123), (271, 76)],
+								"Orne T1" : [(412, 260), (257, 162)],
+								"Orne T3" : [(418, 175), (261, 109)],
+								"Orne T2" : [(398, 233), (248, 145)],
+								"Selune T4" : [(118, 408), (73, 255)],
+								"Selune T2" : [(132, 417), (82, 260)],
+								"Selune T5" : [(112, 406), (69, 253)],
+								"Selune T1" : [(172, 423), (108, 264)],
+								"Touques T1" : [(673, 336), (421, 210)],
+								"Touques T3" : [(665, 247), (416, 154)],
+								"Touques T4" : [(662, 188), (414, 117)],
+								"Touques T6" : [(631, 56), (394, 35)]
 								}
-		# it is what it is :D
+		# it is what it is :D some questions? put it to True
 		self.super_sayan = False
 		# surface (_a mean "active")
 		self.surface = 	{
@@ -115,27 +115,48 @@ class Visualisation(object):
 						"month_a" : self.button(100, 40, bg=BUTTON_BG_A, text="month"),
 						"super_sayan" : self.button(100, 40, bg=BUTTON_BG, text="don't push", text_size=15),
 						"super_sayan_a" : self.button(100, 40, bg=BUTTON_BG_A, text="don't push", text_size=15, text_color=RED),
+						"date_ms" : self.button(120, 40, bg=BUTTON_BG, text="change ms"),
+						"date_ms_a" : self.button(120, 40, bg=BUTTON_BG_A, text="change ms"),
+						"previous" : self.button(60, 40, bg=BUTTON_BG, text="previous", text_size=15),
+						"previous_a" : self.button(60, 40, bg=BUTTON_BG_A, text="previous", text_size=15),
+						"stop" : self.button(60, 40, bg=BUTTON_BG, text="stop", text_size=15),
+						"stop_a" : self.button(60, 40, bg=BUTTON_BG_A, text="stop", text_size=15),
+						"next" : self.button(60, 40, bg=BUTTON_BG, text="next", text_size=15),
+						"next_a" : self.button(60, 40, bg=BUTTON_BG_A, text="next", text_size=15),
+						"date1" : self.button(140, 40, bg=BUTTON_BG, text="change date"),
+						"date1_a" : self.button(140, 40, bg=BUTTON_BG_A, text="change date"),
+						"date2" : self.button(140, 40, bg=BUTTON_BG, text="change date"),
+						"date2_a" : self.button(140, 40, bg=BUTTON_BG_A, text="change date"),
 						"map_actual" : []
 						}
 		# buttons
 		self.hold = "noone"
+		self.user_text = "noone"
 		self.interactive_rect = {
 								"hour" : pg.Rect(120, 10, 100, 40),
 								"day" : pg.Rect(230, 10, 100, 40),
 								"month" : pg.Rect(340, 10, 100, 40),
-								"super_sayan" : pg.Rect(450, 10, 100, 40)
+								"super_sayan" : pg.Rect(450, 10, 100, 40),
+								"date_ms" : pg.Rect(680, 10, 120, 40),
+								"previous" : pg.Rect(950, 10, 60, 40),
+								"stop" : pg.Rect(1010, 10, 60, 40),
+								"next" : pg.Rect(1070, 10, 60, 40),
+								"date1" : pg.Rect(20, 60, 140, 40),
+								"date2" : pg.Rect(20, 60, 140, 40)
 								}
 		# current mode for df 0 : hour 1 : day 2 : month
 		self.df_mode = 1
-		# current date we're printing
+		# current dates we're printing
 		self.date_actual_index = [0, 17 * 180]
+		# load map surfaces
 		self.surface["map_actual"].append(self.load_map_surface(self.df_mode, self.date_actual_index[0]))
 		self.surface["map_actual"].append(self.load_map_surface(self.df_mode, self.date_actual_index[1]))
 		# variables for auto increase date
-		self.stop = [False] * 3
+		self.stop = False
 		self.increase_date_ms = 1000 / 30
 		
 	def button(self, width, height, bg=(60, 70, 90), text=False, text_size=20, text_color=WHITE_TXT):
+		# return a button surface
 		surface = pg.Surface((width, height))
 		surface.fill(bg)
 		pg.draw.rect(surface, (0, 0, 0), pg.Rect(0, 0, width, height), width=2, border_radius=1)
@@ -145,6 +166,7 @@ class Visualisation(object):
 		return surface
 
 	def load_map_surface(self, df_mode, date_index):
+		# return the surface
 		# load the surface we wanna display, map with circles and some stats
 		if self.display_mode == 0:
 			width, height = self.map_surface_800.get_size()
@@ -162,9 +184,7 @@ class Visualisation(object):
 			radius_max = 30
 			radius_min = 5
 			stats_width = 370
-
-
-		# for each station we're gonna display circle with dynamic color and size
+		# for each station we're gonna display circle with dynamic color and size and some stats
 		opposite_color_size = 100
 		x = 0
 		temp_actual = {}
@@ -173,12 +193,11 @@ class Visualisation(object):
 		maxi = self.temp_min[df_mode]
 		stats_temp_str = [""] * 9
 		for key, value in self.stations_pos.items():
-
+			# stats
 			temp_actual[key] = self.df_temp[df_mode]["Teau"][date_index + x]
 			stats_temp_str[int(x / 2)] += key + ":"
 			if x % 2 == 0 and x != 16:
 				stats_temp_str[int(x / 2)] += " " * (30 - len(stats_temp_str[int(x / 2)]))
-
 			if self.super_sayan:
 				radius_max = 100
 				temp_actual[key] = random.uniform(self.temp_min[df_mode], self.temp_max[df_mode])
@@ -187,7 +206,7 @@ class Visualisation(object):
 				mini = temp_actual[key]
 			if temp_actual[key] > maxi:
 				maxi = temp_actual[key]
-
+			# cicrlces
 			if temp_actual[key] < self.temp_mean[df_mode]:
 				mean_add = self.temp_mean[df_mode] - self.temp_min[df_mode]
 				temp_add = temp_actual[key] - self.temp_min[df_mode]
@@ -206,12 +225,12 @@ class Visualisation(object):
 				if self.super_sayan:
 					color = (127 + pourcent * 128 / 100, random.randint(0, 127), opposite_color_size - pourcent * 100 / opposite_color_size)
 				radius = radius_min + (radius_max - radius_min) / 2 + (radius_max - radius_min) / 2 * pourcent / 100
+			# draw
 			self.draw_circle_alpha(map_actual_surface, color, 170, value[self.display_mode], radius)
 			text = self.fonts[12].render(str(round(temp_actual[key], 2)), True, (color[0], color[1], color[2]))
 			map_actual_surface.blit(text, (90 + x % 2 * 210, stats_width + 60 + int(x / 2) * 15))
 			x += 1
-
-		# we're gonna display some stats
+		# stats
 		date_actual_surface = self.fonts[20].render(self.df_temp[df_mode]["date_mesure"][date_index], True, WHITE_TXT)
 		map_actual_surface.blit(date_actual_surface, (0, stats_width))
 		mean /= x
@@ -223,13 +242,11 @@ class Visualisation(object):
 		global_stats_str = " " * 7 + str(round(mean, 2)) + " " * (9 + y) + str(round(mini, 2)) + " " * (9 + z) + str(round(maxi, 2))
 		global_stats = self.fonts[20].render(global_stats_str, True, WHITE_TXT)
 		map_actual_surface.blit(global_stats, (0, stats_width + 30))
-
 		x = 0
 		for temp_str in stats_temp_str:
 			text = self.fonts[12].render(temp_str, True, WHITE_TXT)
 			map_actual_surface.blit(text, (0, stats_width + 60 + x * 15))
 			x += 1
-
 		return map_actual_surface
 
 	def draw_circle_alpha(self, surface, color, alpha, center, radius):
@@ -252,10 +269,11 @@ class Visualisation(object):
 				if not self.running:
 					exit()
 			timer = time.time() * 1000
-			if not self.stop[2]:
+			if not self.stop:
 				self.increase_date(True, True)
 
 	def increase_date(self, index1=False, index2=False):
+		# everything's in the title
 		if index1:
 			self.date_actual_index[0] += 17
 			if self.date_actual_index[0] >= len(self.df_temp[self.df_mode]):
@@ -268,6 +286,7 @@ class Visualisation(object):
 			self.surface["map_actual"][1] = self.load_map_surface(self.df_mode, self.date_actual_index[1])
 
 	def decrease_date(self, index1=False, index2=False):
+		# everything's in the title
 		if index1:
 			self.date_actual_index[0] -= 17
 			if self.date_actual_index[0] < 0:
@@ -280,6 +299,7 @@ class Visualisation(object):
 			self.surface["map_actual"][1] = self.load_map_surface(self.df_mode, self.date_actual_index[1])
 
 	def reset_date(self, index1=False, index2=False):
+		# everything's in the title
 		if index1:
 			self.date_actual_index[0] = 0
 			self.surface["map_actual"][0] = self.load_map_surface(self.df_mode, self.date_actual_index[0])
@@ -293,41 +313,118 @@ class Visualisation(object):
 			self.surface["map_actual"][1] = self.load_map_surface(self.df_mode, self.date_actual_index[1])
 
 	def pos_in_interactive(self, name, mx, my, addwidth=0, addheight=0):
+		# check if mx, my is in interactive Rect
 		if pg.Rect(self.interactive_rect[name].x - addwidth / 2, self.interactive_rect[name].y - addheight / 2,
 			self.interactive_rect[name].width + addwidth, self.interactive_rect[name].height + addheight).collidepoint((mx, my)):
 			return True
 		return False
 
 	def event(self, event):
+		# user events
 		if event.type == pg.MOUSEMOTION:
 			mx, my = pg.mouse.get_pos()
 			if self.hold != "noone" and not self.pos_in_interactive(self.hold, mx, my):
 				self.hold = "noone"
 		elif event.type == pg.VIDEORESIZE:
 			self.window_width, self.window_height = event.size
-			print(self.window_width, self.window_height)
+			if self.window_width >= 1660 and self.window_height >= 870:
+				if self.display_mode == 1:
+					self.display_mode = 0
+					self.surface["map_actual"][0] = self.load_map_surface(self.df_mode, self.date_actual_index[0])
+					self.surface["map_actual"][1] = self.load_map_surface(self.df_mode, self.date_actual_index[1])
+			else:
+				if self.display_mode == 0:
+					self.display_mode = 1
+					self.surface["map_actual"][0] = self.load_map_surface(self.df_mode, self.date_actual_index[0])
+					self.surface["map_actual"][1] = self.load_map_surface(self.df_mode, self.date_actual_index[1])
 		elif event.type == pg.KEYDOWN:
-			if event.key == pg.K_SPACE:
-				if not self.stop[2]:
-					self.stop[2] = True
+			if self.user_text != "noone":
+				# could do it with ascii values, but well ...
+				if event.key == pg.K_0 or event.key == pg.K_KP0:
+					self.user_text_str += "0"
+				if event.key == pg.K_1 or event.key == pg.K_KP1:
+					self.user_text_str += "1"
+				elif event.key == pg.K_2 or event.key == pg.K_KP2:
+					self.user_text_str += "2"
+				elif event.key == pg.K_3 or event.key == pg.K_KP3:
+					self.user_text_str += "3"
+				elif event.key == pg.K_4 or event.key == pg.K_KP4:
+					self.user_text_str += "4"
+				elif event.key == pg.K_5 or event.key == pg.K_KP5:
+					self.user_text_str += "5"
+				elif event.key == pg.K_6 or event.key == pg.K_KP6:
+					self.user_text_str += "6"
+				elif event.key == pg.K_7 or event.key == pg.K_KP7:
+					self.user_text_str += "7"
+				elif event.key == pg.K_8 or event.key == pg.K_KP8:
+					self.user_text_str += "8"
+				elif event.key == pg.K_9 or event.key == pg.K_KP9:
+					self.user_text_str += "9"
+				elif event.key == pg.K_BACKSPACE:
+					size = len(self.user_text_str)
+					if size > 0:
+						self.user_text_str = self.user_text_str[0:size - 1]
+				elif event.key == pg.K_PERIOD or event.key == pg.K_KP_PERIOD:
+					self.user_text_str += "."
+				elif event.key == pg.K_COMMA:
+					self.user_text_str += ","
+				elif event.key == pg.K_MINUS or event.key == pg.K_KP_MINUS:
+					if self.user_text_unvalid.find("-") == -1:
+						self.user_text_str += "-"
+				elif event.key == pg.K_SPACE:
+					if self.user_text_unvalid.find(" ") == -1:
+						self.user_text_str += " "
+				elif event.key == pg.K_SLASH or event.key == pg.K_KP_DIVIDE:
+					if self.user_text_unvalid.find("/") == -1:
+						self.user_text_str += "/"
+				elif event.key == pg.K_COLON:
+					if self.user_text_unvalid.find(":") == -1:
+						self.user_text_str += ":"
+				elif event.key == pg.K_ESCAPE:
+					self.user_text = "noone"
+				elif event.key == pg.K_RETURN:
+					if self.user_text == "date_ms":
+						self.increase_date_ms = float(self.user_text_str.replace(",", "."))
+					elif self.user_text == "date1":
+						if self.user_text_str.find(" ") != 0:
+							tmp_text = self.user_text_str.split(" ")
+							tmp_text[0] = tmp_text[0].replace("/", "-")
+							tmp_text[1] = tmp_text[1].replace("/", ":")
+							tmp_text[1] = tmp_text[1].replace("-", ":")
+							self.user_text_str = tmp_text[0] + " " + tmp_text[1]
+						else:
+							self.user_text_str = self.user_text_str.replace("/", "-")
+						try :
+							self.date_actual_index[0] = self.df_temp[self.df_mode].loc[self.df_temp[self.df_mode]["date_mesure"] == self.user_text_str].index[0]
+							self.surface["map_actual"][0] = self.load_map_surface(self.df_mode, self.date_actual_index[0])
+						except:
+							print("could not find", self.user_text_str)
+					elif self.user_text == "date2":
+						self.user_text_str = self.user_text_str.replace("/", "-")
+						try :
+							self.date_actual_index[1] = self.df_temp[self.df_mode].loc[self.df_temp[self.df_mode]["date_mesure"] == self.user_text_str].index[0]
+							self.surface["map_actual"][1] = self.load_map_surface(self.df_mode, self.date_actual_index[1])
+						except:
+							print("could not find", self.user_text_str)
+					self.user_text = "noone"
+			elif event.key == pg.K_SPACE:
+				if not self.stop:
+					self.stop = True
 				else:
-					self.stop[2] = False
-			if event.key == K_LEFT:
-				self.stop[2] = True
+					self.stop = False
+			elif event.key == K_LEFT:
+				self.stop = True
 				self.decrease_date(True, True)
-			if event.key == K_RIGHT:
-				self.stop[2] = True
+			elif event.key == K_RIGHT:
+				self.stop = True
 				self.increase_date(True, True)
 		elif event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
 			mx, my = pg.mouse.get_pos()
-			if self.pos_in_interactive("hour", mx, my):
-				self.hold = "hour"
-			elif self.pos_in_interactive("day", mx, my):
-				self.hold = "day"
-			elif self.pos_in_interactive("month", mx, my):
-				self.hold = "month"
-			elif self.pos_in_interactive("super_sayan", mx, my):
-				self.hold = "super_sayan"
+			for key, value in self.interactive_rect.items():
+				if self.pos_in_interactive(key, mx, my):
+					self.hold = key
+			if self.user_text != "noone":
+				self.user_text = "noone"
 		elif event.type == pg.MOUSEBUTTONUP and event.button == 1:
 			if self.hold == "hour":
 				self.df_mode = 0
@@ -344,6 +441,29 @@ class Visualisation(object):
 				else:
 					self.super_sayan = False
 				self.reset_date(True, True)
+			elif self.hold == "previous":
+				self.stop = True
+				self.decrease_date(True, True)
+			elif self.hold == "stop":
+				if not self.stop:
+					self.stop = True
+				else:
+					self.stop = False
+			elif self.hold == "next":
+				self.stop = True
+				self.increase_date(True, True)
+			elif self.hold == "date_ms":
+				self.user_text = "date_ms"
+				self.user_text_str = ""
+				self.user_text_unvalid = "- :/"
+			elif self.hold == "date1":
+				self.user_text = "date1"
+				self.user_text_str = ""
+				self.user_text_unvalid = ""
+			elif self.hold == "date2":
+				self.user_text = "date2"
+				self.user_text_str = ""
+				self.user_text_unvalid = ""
 			if self.hold != "noone":
 				self.hold = "noone"
 
@@ -358,12 +478,29 @@ class Visualisation(object):
 			fps_real_time_surface = self.fonts[15].render("FPS : " + str(fps), True, WHITE_TXT)
 		self.screen.blit(fps_real_time_surface, (20, 20))
 
-		# display map with circles and some stats
+		# display map surface
 		size = self.surface["map_actual"][0].get_size()[0]
 		left = (self.window_width - size * 2) / 3
-		self.screen.blit(self.surface["map_actual"][0], (left, 70))
-		self.screen.blit(self.surface["map_actual"][1], (left + size + left, 70))
+		self.screen.blit(self.surface["map_actual"][0], (left, 110))
+		self.screen.blit(self.surface["map_actual"][1], (left * 2 + size, 110))
 
+
+		# user can change date
+		self.interactive_rect["date1"].x = left
+		self.interactive_rect["date2"].x = left * 2 + size
+		if self.user_text == "date1":
+			if len(self.user_text_str) < 1:
+				date_text = self.fonts[20].render("new date here", True, WHITE_TXT)
+			else:
+				date_text = self.fonts[20].render(self.user_text_str, True, WHITE_TXT)
+			self.screen.blit(date_text, (self.interactive_rect["date1"].x + self.interactive_rect["date1"].width + 10, self.interactive_rect["date1"].y + 10))
+		elif self.user_text == "date2":
+			if len(self.user_text_str) < 1:
+				date_text = self.fonts[20].render("new date here", True, WHITE_TXT)
+			else:
+				date_text = self.fonts[20].render(self.user_text_str, True, WHITE_TXT)
+			self.screen.blit(date_text, (self.interactive_rect["date2"].x + self.interactive_rect["date2"].width + 10, self.interactive_rect["date2"].y + 10))
+		
 		# display buttons
 		mx, my = pg.mouse.get_pos()
 		for key, value in self.interactive_rect.items():
@@ -371,7 +508,19 @@ class Visualisation(object):
 				self.screen.blit(self.surface[key + "_a"], (self.interactive_rect[key].x, self.interactive_rect[key].y))
 			else:
 				self.screen.blit(self.surface[key], (self.interactive_rect[key].x, self.interactive_rect[key].y))
-		# apply new display
+
+		# user can change MS
+		ms_date = self.fonts[20].render("MS: " + str(round(self.increase_date_ms, 1)), True, WHITE_TXT)
+		self.screen.blit(ms_date, (560, 20))
+		if self.user_text == "date_ms":
+			if len(self.user_text_str) < 1:
+				date_ms_text = self.fonts[20].render("new ms here", True, WHITE_TXT)
+			else:
+				date_ms_text = self.fonts[20].render(self.user_text_str, True, WHITE_TXT)
+			self.screen.blit(date_ms_text, (810, 20))
+
+
+		# draw new frame
 		pg.display.flip()
 		
 
