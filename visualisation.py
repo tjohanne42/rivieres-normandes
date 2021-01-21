@@ -388,12 +388,11 @@ class Visualisation(object):
 					elif self.user_text == "date1":
 						if self.user_text_str.find(" ") != -1:
 							tmp_text = self.user_text_str.split(" ")
-							tmp_text[0] = tmp_text[0].replace("/", "-")
-							tmp_text[1] = tmp_text[1].replace("/", ":")
-							tmp_text[1] = tmp_text[1].replace("-", ":")
+							tmp_text[0] = tmp_text[0].replace("/", "-").replace(",", "-").replace(".", "-").replace(":", "-")
+							tmp_text[1] = tmp_text[1].replace("/", ":").replace("-", ":").replace(",", ":").replace(".", ":")
 							self.user_text_str = tmp_text[0] + " " + tmp_text[1]
 						else:
-							self.user_text_str = self.user_text_str.replace("/", "-")
+							self.user_text_str = self.user_text_str.replace("/", "-").replace(",", "-").replace(".", "-").replace(":", "-")
 						try :
 							self.date_actual_index[0] = self.df_temp[self.df_mode].loc[self.df_temp[self.df_mode]["date_mesure"] == self.user_text_str].index[0]
 							self.surface["map_actual"][0] = self.load_map_surface(self.df_mode, self.date_actual_index[0])
@@ -402,12 +401,11 @@ class Visualisation(object):
 					elif self.user_text == "date2":
 						if self.user_text_str.find(" ") != -1:
 							tmp_text = self.user_text_str.split(" ")
-							tmp_text[0] = tmp_text[0].replace("/", "-")
-							tmp_text[1] = tmp_text[1].replace("/", ":")
-							tmp_text[1] = tmp_text[1].replace("-", ":")
+							tmp_text[0] = tmp_text[0].replace("/", "-").replace(",", "-").replace(".", "-").replace(":", "-")
+							tmp_text[1] = tmp_text[1].replace("/", ":").replace("-", ":").replace(",", ":").replace(".", ":")
 							self.user_text_str = tmp_text[0] + " " + tmp_text[1]
 						else:
-							self.user_text_str = self.user_text_str.replace("/", "-")
+							self.user_text_str = self.user_text_str.replace("/", "-").replace(",", "-").replace(".", "-").replace(":", "-")
 						try :
 							self.date_actual_index[1] = self.df_temp[self.df_mode].loc[self.df_temp[self.df_mode]["date_mesure"] == self.user_text_str].index[0]
 							self.surface["map_actual"][1] = self.load_map_surface(self.df_mode, self.date_actual_index[1])
