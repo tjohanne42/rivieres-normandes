@@ -26,6 +26,8 @@ focus sur une station en particulier, qui afficherait des stats par rapport aux 
 
 mode avec une seule map + des graphiques
 
+évidemment un meilleur confort utilisateur
+
 # bonus video
 
 je me suis beaucoup amusé à le faire
