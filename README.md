@@ -25,3 +25,7 @@ visualisation.py ouvre une fenêtre de visualisation (pygame)
 focus sur une station en particulier, qui afficherait des stats par rapport aux autres stations
 
 mode avec une seule map + des graphiques
+
+# bonus video
+
+https://youtu.be/mIxN14Qu-mM :D
