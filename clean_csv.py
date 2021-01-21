@@ -1,27 +1,26 @@
 import pandas as pd
 import time
 
-temp = pd.read_csv("csv/l-mesuretemprivieres-d-r28.csv")
-res = pd.read_csv("csv/l-reseautemprivieres-d-r28.csv")
-
-
 # CLEANING TEMP DF
 
-print(temp.tail())
-print(temp.info())
+temp_hour = pd.read_csv("csv/l-mesuretemprivieres-d-r28.csv")
+
+print(temp_hour.tail())
+print(temp_hour.info())
 # no null value in temp
 
 # type of Teau (or Theo lol) is object, we're gonna convert it to float64
-temp["Teau"] = pd.to_numeric(temp["Teau"].str.replace(',', '.'))
+temp_hour["Teau"] = pd.to_numeric(temp_hour["Teau"].str.replace(',', '.'))
 
 # we're gonna sort temp by id_sonde then by date_mesure
-temp = temp.sort_values(by=["date_mesure", "id_sonde"])
-print(temp.head())
-print(temp.tail())
+temp_hour = temp_hour.sort_values(by=["date_mesure", "id_sonde"])
+print(temp_hour.head())
+print(temp_hour.tail())
 
 # we're gonna check for each date if we have all Teau
 # it can takes nearly 10 minutes
 # after check we have all Teau, no data missing
+"""
 tab_dates = pd.unique(temp["date_mesure"])
 print(len(tab_dates))
 x = 0
@@ -34,17 +33,18 @@ for date in tab_dates:
 	if x % 1000 == 0:
 		print(x, "done in", time.time() - start)
 print("check done")
+"""
 
 # column id_mesure isn't usefull in my case, gonna drop it
-temp = temp.drop(["id_mesure"], axis=1)
+temp_hour = temp_hour.drop(["id_mesure"], axis=1)
 
 # save the cleaned temp
-temp.to_csv("csv/temp_hour.csv")
+temp_hour.to_csv("csv/temp_hour.csv")
 
 # CREATE TEMP / DAY
 
 # create new df with temp / day
-temp = pd.read_csv("csv/temp_hour.csv")
+temp_hour = pd.read_csv("csv/temp_hour.csv")
 
 x = 0
 
@@ -52,10 +52,10 @@ nb_hours = 0
 values = [0] * 17
 
 tab_mean = []
-tab_date = [temp["date_mesure"][0].split(" ")[0]]
+tab_date = [temp_hour["date_mesure"][0].split(" ")[0]]
 
-while x < len(temp):
-    date = temp["date_mesure"][x].split(" ")[0]
+while x < len(temp_hour):
+    date = temp_hour["date_mesure"][x].split(" ")[0]
     
     if date != tab_date[-1]:
         for value in values:
@@ -66,7 +66,7 @@ while x < len(temp):
 
     y = 0
     while y < 17:
-        values[y] += temp["Teau"][x + y]
+        values[y] += temp_hour["Teau"][x + y]
         y += 1
         
     x += 17
@@ -117,7 +117,7 @@ while x < len(temp_day):
 
     y = 0
     while y < 17:
-        values[y] += temp["Teau"][x + y]
+        values[y] += temp_day["Teau"][x + y]
         y += 1
         
     x += 17
@@ -146,6 +146,9 @@ temp_month.to_csv("csv/temp_month.csv")
 
 # CLEANING RES DF
 
+temp_hour = pd.read_csv("csv/temp_hour.csv")
+res = pd.read_csv("csv/l-reseautemprivieres-d-r28.csv")
+
 print(res.tail())
 print(res.info())
 
@@ -155,7 +158,7 @@ res = res.drop([33])
 # there are many stations in res we're not gonna use
 # we have temp of 17 stations and we have 33 stations in res
 # we're gonna drop those stations in res
-tab_id = pd.unique(temp["id_sonde"])
+tab_id = pd.unique(temp_hour["id_sonde"])
 
 tab = res["id_sonde"]
 for i in tab:

@@ -6,11 +6,14 @@ import atexit
 import time
 import os
 import concurrent.futures
+import random
 
 WHITE_TXT = (200, 200, 200)
 GREEN = (41, 94, 60)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
+BUTTON_BG = (60, 70, 90)
+BUTTON_BG_A = (40, 50, 70)
 
 class Visualisation(object):
 
@@ -19,7 +22,7 @@ class Visualisation(object):
 		self.init_variables()
 		# parralel script to auto increase date
 		f1 = concurrent.futures.ThreadPoolExecutor().submit(self.loop_increase_date)
-		# for debugging
+		# for debugging:
 		#self.loop_increase_date()
 
 	def init_pygame(self):
@@ -35,10 +38,13 @@ class Visualisation(object):
 		info = pg.display.Info()
 		screen_width, screen_height = info.current_w, info.current_h
 		# we're just adjusting size for two size of screen
-		if screen_width >= 1660 and screen_height >= 800:
-			self.window_width, self.window_height = 1660, 800
-			# current mode for display 0 : 800(width)
+		if screen_width >= 1660 and screen_height >= 870:
+			self.window_width, self.window_height = 1660, 870
 			self.display_mode = 0
+		else:
+			self.window_width, self.window_height= 1060, 700
+			self.display_mode = 1
+		# debugging
 		self.screen = pg.display.set_mode((self.window_width, self.window_height), HWSURFACE | DOUBLEBUF | RESIZABLE)
 		self.fonts = self.load_fonts("assets/Inconsolata-Bold.ttf", 1, 30)
 		self.clock = pg.time.Clock()
@@ -76,71 +82,155 @@ class Visualisation(object):
 		# resize the map, to save time we're gonna do it with paint :3
 		# load the grayscale map (800 = width)
 		self.map_surface_800 = pg.image.load("assets/gray_map_800.png")
+		self.map_surface_500 = pg.image.load("assets/gray_map_500.png")
 		# position of stations on the map, needed to check lambert 93 positions to place them
-		self.stations_pos = {
-									"Monne" : [(614, 245), (0, 0)],
-									"Barge" : [(620, 331), (0, 0)],
-									"Ving Bec" : [(394, 211), (0, 0)],
-									"Odon T2" : [(352, 193), (0, 0)],
-									"Odon T4" : [(402, 139), (0, 0)],
-									"Odon T5" : [(435, 123), (0, 0)],
-									"Orne T1" : [(412, 260), (0, 0)],
-									"Orne T3" : [(418, 175), (0, 0)],
-									"Orne T2" : [(398, 233), (0, 0)],
-									"Selune T4" : [(118, 408), (0, 0)],
-									"Selune T2" : [(132, 417), (0, 0)],
-									"Selune T5" : [(112, 406), (0, 0)],
-									"Selune T1" : [(172, 423), (0, 0)],
-									"Touques T1" : [(673, 336), (0, 0)],
-									"Touques T3" : [(665, 247), (0, 0)],
-									"Touques T4" : [(662, 188), (0, 0)],
-									"Touques T6" : [(631, 56), (0, 0)]
+		self.stations_pos = 	{
+								"Monne" : [(614, 245), (0, 0)],
+								"Barge" : [(620, 331), (0, 0)],
+								"Ving Bec" : [(394, 211), (0, 0)],
+								"Odon T2" : [(352, 193), (0, 0)],
+								"Odon T4" : [(402, 139), (0, 0)],
+								"Odon T5" : [(435, 123), (0, 0)],
+								"Orne T1" : [(412, 260), (0, 0)],
+								"Orne T3" : [(418, 175), (0, 0)],
+								"Orne T2" : [(398, 233), (0, 0)],
+								"Selune T4" : [(118, 408), (0, 0)],
+								"Selune T2" : [(132, 417), (0, 0)],
+								"Selune T5" : [(112, 406), (0, 0)],
+								"Selune T1" : [(172, 423), (0, 0)],
+								"Touques T1" : [(673, 336), (0, 0)],
+								"Touques T3" : [(665, 247), (0, 0)],
+								"Touques T4" : [(662, 188), (0, 0)],
+								"Touques T6" : [(631, 56), (0, 0)]
+								}
+		# it is what it is :D
+		self.super_sayan = False
+		# surface (_a mean "active")
+		self.surface = 	{
+						"hour" : self.button(100, 40, bg=BUTTON_BG, text="hour"),
+						"hour_a" : self.button(100, 40, bg=BUTTON_BG_A, text="hour"),
+						"day" : self.button(100, 40, bg=BUTTON_BG, text="day"),
+						"day_a" : self.button(100, 40, bg=BUTTON_BG_A, text="day"),
+						"month" : self.button(100, 40, bg=BUTTON_BG, text="month"),
+						"month_a" : self.button(100, 40, bg=BUTTON_BG_A, text="month"),
+						"super_sayan" : self.button(100, 40, bg=BUTTON_BG, text="don't push", text_size=15),
+						"super_sayan_a" : self.button(100, 40, bg=BUTTON_BG_A, text="don't push", text_size=15, text_color=RED),
+						"map_actual" : []
+						}
+		# buttons
+		self.hold = "noone"
+		self.interactive_rect = {
+								"hour" : pg.Rect(120, 10, 100, 40),
+								"day" : pg.Rect(230, 10, 100, 40),
+								"month" : pg.Rect(340, 10, 100, 40),
+								"super_sayan" : pg.Rect(450, 10, 100, 40)
 								}
 		# current mode for df 0 : hour 1 : day 2 : month
 		self.df_mode = 1
 		# current date we're printing
-		self.date_actual_index = 0
-		self.map_actual_surface, self.temp_actual, self.date_actual_surface = self.load_map_surface(self.df_mode, self.date_actual_index)
+		self.date_actual_index = [0, 17 * 180]
+		self.surface["map_actual"].append(self.load_map_surface(self.df_mode, self.date_actual_index[0]))
+		self.surface["map_actual"].append(self.load_map_surface(self.df_mode, self.date_actual_index[1]))
 		# variables for auto increase date
-		self.stop = False
-		self.increase_ms = 1000 / 30
+		self.stop = [False] * 3
+		self.increase_date_ms = 1000 / 30
+		
+	def button(self, width, height, bg=(60, 70, 90), text=False, text_size=20, text_color=WHITE_TXT):
+		surface = pg.Surface((width, height))
+		surface.fill(bg)
+		pg.draw.rect(surface, (0, 0, 0), pg.Rect(0, 0, width, height), width=2, border_radius=1)
+		if text != False:
+			text_surface = self.fonts[text_size].render(text, True, text_color)
+			surface.blit(text_surface, (width / 2 - text_surface.get_size()[0] / 2, height / 2 - text_surface.get_size()[1] / 2))
+		return surface
 
 	def load_map_surface(self, df_mode, date_index):
-		# load the surface we wanna display, map with circles
+		# load the surface we wanna display, map with circles and some stats
 		if self.display_mode == 0:
 			width, height = self.map_surface_800.get_size()
-			target_rect = pg.Rect(0, 0, width, height)
+			target_rect = pg.Rect(0, 0, width, 780)
 			map_actual_surface = pg.Surface(target_rect.size, pg.SRCALPHA)
 			map_actual_surface.blit(self.map_surface_800, (0, 0))
 			radius_max = 40
 			radius_min = 10
+			stats_width = 580
+		elif self.display_mode == 1:
+			width, height = self.map_surface_500.get_size()
+			target_rect = pg.Rect(0, 0, width, 570)
+			map_actual_surface = pg.Surface(target_rect.size, pg.SRCALPHA)
+			map_actual_surface.blit(self.map_surface_500, (0, 0))
+			radius_max = 30
+			radius_min = 5
+			stats_width = 370
+
 
 		# for each station we're gonna display circle with dynamic color and size
+		opposite_color_size = 100
 		x = 0
 		temp_actual = {}
+		mean = 0
+		mini = self.temp_max[df_mode]
+		maxi = self.temp_min[df_mode]
+		stats_temp_str = [""] * 9
 		for key, value in self.stations_pos.items():
 
 			temp_actual[key] = self.df_temp[df_mode]["Teau"][date_index + x]
+			stats_temp_str[int(x / 2)] += key + ":"
+			if x % 2 == 0 and x != 16:
+				stats_temp_str[int(x / 2)] += " " * (30 - len(stats_temp_str[int(x / 2)]))
+
+			if self.super_sayan:
+				radius_max = 100
+				temp_actual[key] = random.uniform(self.temp_min[df_mode], self.temp_max[df_mode])
+			mean += temp_actual[key]
+			if temp_actual[key] < mini:
+				mini = temp_actual[key]
+			if temp_actual[key] > maxi:
+				maxi = temp_actual[key]
 
 			if temp_actual[key] < self.temp_mean[df_mode]:
 				mean_add = self.temp_mean[df_mode] - self.temp_min[df_mode]
 				temp_add = temp_actual[key] - self.temp_min[df_mode]
 				pourcent = temp_add * 100 / mean_add
 				# blue
-				color = (100 - (100 - pourcent) * 100 / 100, 0, 127 + (100 - pourcent) * 128 / 100)
+				color = (opposite_color_size - (100 - pourcent) * 100 / opposite_color_size, 0, 127 + (100 - pourcent) * 128 / 100)
+				if self.super_sayan:
+					color = (opposite_color_size - (100 - pourcent) * 100 / opposite_color_size, random.randint(0, 127), 127 + (100 - pourcent) * 128 / 100)
 				radius = radius_min + (radius_max - radius_min) / 2 * pourcent / 100
 			else:
 				max_add = self.temp_max[df_mode] - self.temp_mean[df_mode]
 				temp_add = temp_actual[key] - self.temp_mean[df_mode]
 				pourcent = temp_add * 100 / max_add
 				# red
-				color = (127 + pourcent * 128 / 100, 0, 100 - pourcent * 100 / 100)
+				color = (127 + pourcent * 128 / 100, 0, opposite_color_size - pourcent * 100 / opposite_color_size)
+				if self.super_sayan:
+					color = (127 + pourcent * 128 / 100, random.randint(0, 127), opposite_color_size - pourcent * 100 / opposite_color_size)
 				radius = radius_min + (radius_max - radius_min) / 2 + (radius_max - radius_min) / 2 * pourcent / 100
 			self.draw_circle_alpha(map_actual_surface, color, 170, value[self.display_mode], radius)
+			text = self.fonts[12].render(str(round(temp_actual[key], 2)), True, (color[0], color[1], color[2]))
+			map_actual_surface.blit(text, (90 + x % 2 * 210, stats_width + 60 + int(x / 2) * 15))
 			x += 1
+
+		# we're gonna display some stats
 		date_actual_surface = self.fonts[20].render(self.df_temp[df_mode]["date_mesure"][date_index], True, WHITE_TXT)
-		# load dic with all temp for this date and mode and date_surface
-		return map_actual_surface, temp_actual, date_actual_surface
+		map_actual_surface.blit(date_actual_surface, (0, stats_width))
+		mean /= x
+		global_stats_str = "mean :        min :        max : "
+		global_stats = self.fonts[20].render(global_stats_str, True, WHITE_TXT)
+		map_actual_surface.blit(global_stats, (0, stats_width + 30))
+		y = 4 - len(str(round(mean, 2)))
+		z = 4 - len(str(round(mini, 2)))
+		global_stats_str = " " * 7 + str(round(mean, 2)) + " " * (9 + y) + str(round(mini, 2)) + " " * (9 + z) + str(round(maxi, 2))
+		global_stats = self.fonts[20].render(global_stats_str, True, WHITE_TXT)
+		map_actual_surface.blit(global_stats, (0, stats_width + 30))
+
+		x = 0
+		for temp_str in stats_temp_str:
+			text = self.fonts[12].render(temp_str, True, WHITE_TXT)
+			map_actual_surface.blit(text, (0, stats_width + 60 + x * 15))
+			x += 1
+
+		return map_actual_surface
 
 	def draw_circle_alpha(self, surface, color, alpha, center, radius):
 		# typical circle display with pygame with alpha colors
@@ -154,47 +244,108 @@ class Visualisation(object):
 		# loop running in backgroup to auto increase date if we want
 		timer = time.time() * 1000
 		while self.running:
-			while time.time() * 1000 - timer < self.increase_ms:
-				sleep_time = self.increase_ms - (time.time() * 1000 - timer)
+			while time.time() * 1000 - timer < self.increase_date_ms:
+				sleep_time = self.increase_date_ms - (time.time() * 1000 - timer)
 				if sleep_time >= 1000:
 					sleep_time = 1000
 				time.sleep(sleep_time / 1000)
 				if not self.running:
 					exit()
 			timer = time.time() * 1000
-			if not self.stop:
-				self.increase_date()
+			if not self.stop[2]:
+				self.increase_date(True, True)
 
-	def increase_date(self):
-		self.date_actual_index += 17
-		try:
-			self.df_temp[self.df_mode]["date_mesure"][self.date_actual_index]
-		except:
-			self.date_actual_index = 0
-		self.map_actual_surface, self.temp_actual, self.date_actual_surface = self.load_map_surface(self.df_mode, self.date_actual_index)
+	def increase_date(self, index1=False, index2=False):
+		if index1:
+			self.date_actual_index[0] += 17
+			if self.date_actual_index[0] >= len(self.df_temp[self.df_mode]):
+				self.date_actual_index[0] = 0
+			self.surface["map_actual"][0] = self.load_map_surface(self.df_mode, self.date_actual_index[0])
+		if index2:
+			self.date_actual_index[1] += 17
+			if self.date_actual_index[1] >= len(self.df_temp[self.df_mode]):
+				self.date_actual_index[1] = 0
+			self.surface["map_actual"][1] = self.load_map_surface(self.df_mode, self.date_actual_index[1])
 
-	def decrease_date(self):
-		self.date_actual_index -= 17
-		if self.date_actual_index < 0:
-			self.date_actual_index = len(self.df_temp[self.df_mode]) - 18
-		self.map_actual_surface, self.temp_actual, self.date_actual_surface = self.load_map_surface(self.df_mode, self.date_actual_index)
+	def decrease_date(self, index1=False, index2=False):
+		if index1:
+			self.date_actual_index[0] -= 17
+			if self.date_actual_index[0] < 0:
+				self.date_actual_index[0] = len(self.df_temp[self.df_mode]) - 17
+			self.surface["map_actual"][0] = self.load_map_surface(self.df_mode, self.date_actual_index[0])
+		if index2:
+			self.date_actual_index[1] -= 17
+			if self.date_actual_index[1] < 0:
+				self.date_actual_index[1] = len(self.df_temp[self.df_mode]) - 17
+			self.surface["map_actual"][1] = self.load_map_surface(self.df_mode, self.date_actual_index[1])
+
+	def reset_date(self, index1=False, index2=False):
+		if index1:
+			self.date_actual_index[0] = 0
+			self.surface["map_actual"][0] = self.load_map_surface(self.df_mode, self.date_actual_index[0])
+		if index2:
+			if self.df_mode == 0:
+				self.date_actual_index[1] = 17 * 12 * 180
+			elif self.df_mode == 1:
+				self.date_actual_index[1] = 17 * 180
+			else:
+				self.date_actual_index[1] = 17 * 6
+			self.surface["map_actual"][1] = self.load_map_surface(self.df_mode, self.date_actual_index[1])
+
+	def pos_in_interactive(self, name, mx, my, addwidth=0, addheight=0):
+		if pg.Rect(self.interactive_rect[name].x - addwidth / 2, self.interactive_rect[name].y - addheight / 2,
+			self.interactive_rect[name].width + addwidth, self.interactive_rect[name].height + addheight).collidepoint((mx, my)):
+			return True
+		return False
 
 	def event(self, event):
-		if event.type == pg.VIDEORESIZE:
+		if event.type == pg.MOUSEMOTION:
+			mx, my = pg.mouse.get_pos()
+			if self.hold != "noone" and not self.pos_in_interactive(self.hold, mx, my):
+				self.hold = "noone"
+		elif event.type == pg.VIDEORESIZE:
 			self.window_width, self.window_height = event.size
 			print(self.window_width, self.window_height)
 		elif event.type == pg.KEYDOWN:
 			if event.key == pg.K_SPACE:
-				if not self.stop:
-					self.stop = True
+				if not self.stop[2]:
+					self.stop[2] = True
 				else:
-					self.stop = False
+					self.stop[2] = False
 			if event.key == K_LEFT:
-				self.stop = True
-				self.decrease_date()
+				self.stop[2] = True
+				self.decrease_date(True, True)
 			if event.key == K_RIGHT:
-				self.stop = True
-				self.increase_date()
+				self.stop[2] = True
+				self.increase_date(True, True)
+		elif event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+			mx, my = pg.mouse.get_pos()
+			if self.pos_in_interactive("hour", mx, my):
+				self.hold = "hour"
+			elif self.pos_in_interactive("day", mx, my):
+				self.hold = "day"
+			elif self.pos_in_interactive("month", mx, my):
+				self.hold = "month"
+			elif self.pos_in_interactive("super_sayan", mx, my):
+				self.hold = "super_sayan"
+		elif event.type == pg.MOUSEBUTTONUP and event.button == 1:
+			if self.hold == "hour":
+				self.df_mode = 0
+				self.reset_date(True, True)
+			elif self.hold == "day":
+				self.df_mode = 1
+				self.reset_date(True, True)
+			elif self.hold == "month":
+				self.df_mode = 2
+				self.reset_date(True, True)
+			elif self.hold == "super_sayan":
+				if not self.super_sayan:
+					self.super_sayan = True
+				else:
+					self.super_sayan = False
+				self.reset_date(True, True)
+			if self.hold != "noone":
+				self.hold = "noone"
 
 	def display(self, fps=False):
 		# fill background
@@ -205,14 +356,21 @@ class Visualisation(object):
 			fps_real_time_surface = self.fonts[15].render("FPS : -", True, WHITE_TXT)
 		else:
 			fps_real_time_surface = self.fonts[15].render("FPS : " + str(fps), True, WHITE_TXT)
-		self.screen.blit(fps_real_time_surface, (20, 10))
+		self.screen.blit(fps_real_time_surface, (20, 20))
 
-		# display map with circles
-		self.screen.blit(self.map_actual_surface, (20, 40))
+		# display map with circles and some stats
+		size = self.surface["map_actual"][0].get_size()[0]
+		left = (self.window_width - size * 2) / 3
+		self.screen.blit(self.surface["map_actual"][0], (left, 70))
+		self.screen.blit(self.surface["map_actual"][1], (left + size + left, 70))
 
-		# display date
-		self.screen.blit(self.date_actual_surface, (20, 620))
-
+		# display buttons
+		mx, my = pg.mouse.get_pos()
+		for key, value in self.interactive_rect.items():
+			if self.hold != key and self.pos_in_interactive(key, mx, my):
+				self.screen.blit(self.surface[key + "_a"], (self.interactive_rect[key].x, self.interactive_rect[key].y))
+			else:
+				self.screen.blit(self.surface[key], (self.interactive_rect[key].x, self.interactive_rect[key].y))
 		# apply new display
 		pg.display.flip()
 		
@@ -220,11 +378,12 @@ class Visualisation(object):
 if __name__ == "__main__":
 
 	visu = Visualisation()
-	visu.fps = 60
+	visu.fps = 120
 	# count real time fps
 	timer = time.time()
 	count_fps = 0
 	last_count_fps = False
+
 	# main loop
 	running = True
 	while running:
@@ -245,4 +404,5 @@ if __name__ == "__main__":
 			last_count_fps = count_fps
 			count_fps = 0
 			timer = time.time()
-visu.quit()
+
+	visu.quit()
